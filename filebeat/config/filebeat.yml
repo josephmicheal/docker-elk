@@ -25,7 +25,7 @@ filebeat.inputs:
 
   # Paths that should be crawled and fetched. Glob based paths.
   paths:
-    - F:/Udemy/GitRepo/Spring-ELK_Setup/Spring-ELK_Setup/logs/application.log
+    - /usr/share/logstash/applogs/application.log
     #- /var/log/*.log
     #- c:\programdata\elasticsearch\logs\*
 

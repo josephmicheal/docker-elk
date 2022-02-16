@@ -12,7 +12,7 @@ services:
     networks:
       - elk
   filebeat:
-    image: docker.elastic.co/beats/filebeat:${ELASTIC_VERSION:-7.9.1}
+    image: docker.elastic.co/beats/filebeat:7.12.1
     # https://github.com/docker/swarmkit/issues/1951
     hostname: "{{.Node.Hostname}}-filebeat"
     # Need to override user so we can access the log files, and docker.sock
@@ -23,7 +23,7 @@ services:
       - source: fb_config
         target: /usr/share/filebeat/filebeat.yml
     volumes:
-      - filebeat:/usr/share/filebeat/data
+      - apache_logs:/usr/share/logstash/applogs:z
       - /var/run/docker.sock:/var/run/docker.sock
       # This is needed for filebeat to load container log path as specified in filebeat.yml
       - /var/lib/docker/containers/:/var/lib/docker/containers/:ro
@@ -41,23 +41,12 @@ services:
     deploy:
       mode: global
 
-networks:
-  elastic:
-    external: true
-    name: host
-
-volumes:
-  filebeat:
-
-configs:
-  fb_config:
-    file: $PWD/elk/beats/filebeat/config/filebeat.yml
   elasticsearch:
     user: root
     build:
       context: elasticsearch/
       args:
-        ELK_VERSION: 7.16.2
+        ELK_VERSION: 7.12.1
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,z
       - elasticsearch:/usr/share/elasticsearch/data:z
@@ -78,7 +67,7 @@ configs:
     build:
       context: logstash/
       args:
-        ELK_VERSION: 7.16.2
+        ELK_VERSION: 7.12.1
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,z
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,z
@@ -100,7 +89,7 @@ configs:
     build:
       context: kibana/
       args:
-        ELK_VERSION: 7.16.2
+        ELK_VERSION: 7.12.1
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,z
     ports:
@@ -117,3 +106,7 @@ networks:
 volumes:
   elasticsearch:
   apache_logs:
+
+configs:
+  fb_config:
+    file: $PWD/config/filebeat.yml
